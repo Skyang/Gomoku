@@ -17,6 +17,7 @@ var chess = {
     init: function () {
         if (board.getContext) {
             record = [];
+            //黑棋先下
             turn = 0;
             isOver = false;
             var context = board.getContext("2d");
@@ -36,7 +37,6 @@ var chess = {
                 context.lineTo(725, marginInit + gridLength * j);
             }
             context.stroke();
-            //黑棋先下
         }
     },
     //绘制白棋
@@ -169,7 +169,7 @@ var chess = {
             turn: turn
         };
         for (var i = 0; i < length; i++) {
-            if (judgeVertical.x == record[i].y && judgeVertical.turn == record[i].turn) {
+            if (judgeVertical.x == record[i].x && judgeVertical.turn == record[i].turn) {
                 //得到纵坐标点的index，格式为1,2，...
                 judge.push((record[i].y - marginInit) / gridLength);
             }
