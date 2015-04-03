@@ -1,50 +1,51 @@
-/**
- * Created by Administrator on 2015/4/2.
+ï»¿/**
+ * Created by Hysky on 2015/4/2.
  */
 var board = document.getElementById("gomoku");
-var turn;
-var record = [];
-var boardWidth=750,
-    boardHeight=750,
-    marginInit=25,
-    gridLength=50,
-    row=15,
-    column=15,
-    radius=20;
+var turn,       //ç™½æ£‹ä¸‹è¿‡turnä¸º0ï¼Œé»‘æ£‹ä¸º1
+    isOver;     //isOverä¸ºtrueæ—¶æ¸¸æˆç»“æŸ
+var record = [];    //æ£‹è°±è®°å½•
+var boardWidth = 750,   //æ£‹ç›˜å®½åº¦
+    boardHeight = 750,  //æ£‹ç›˜é«˜åº¦
+    marginInit = 25,    //ä¸è¾¹ç•Œçš„ç©ºéš™
+    gridLength = 50,    //æ¯ä¸€æ ¼å®½åº¦
+    row = 15,           //è¡Œæ•°
+    column = 15,        //åˆ—æ•°
+    radius = 20;        //æ£‹å­åŠå¾„
 var chess = {
-    //»æÖÆÆåÅÌ
+    //ç»˜åˆ¶æ£‹ç›˜
     init: function () {
         if (board.getContext) {
-            record=[];
+            record = [];
             turn = 0;
+            isOver = false;
             var context = board.getContext("2d");
-            context.clearRect(0,0,boardWidth,boardHeight);
-            //»æÖÆÍâ±ß¿ò
+            context.clearRect(0, 0, boardWidth, boardHeight);
+            //ç»˜åˆ¶å¤–è¾¹æ¡†
             context.strokeRect(0, 0, boardWidth, boardHeight);
             context.strokeStyle = "#000";
-            //»æÖÆÊúÏß
+            //ç»˜åˆ¶ç«–çº¿
             context.beginPath();
             for (var i = 0; i < column; i++) {
                 context.moveTo(marginInit + gridLength * i, 25);
                 context.lineTo(marginInit + gridLength * i, 725);
             }
-            //»æÖÆºáÏß
+            //ç»˜åˆ¶æ¨ªçº¿
             for (var j = 0; j < row; j++) {
                 context.moveTo(25, marginInit + gridLength * j);
                 context.lineTo(725, marginInit + gridLength * j);
             }
             context.stroke();
-            //ºÚÆåÏÈÏÂ
+            //é»‘æ£‹å…ˆä¸‹
         }
     },
-    //»æÖÆ°×Æå
+    //ç»˜åˆ¶ç™½æ£‹
     white: function (clickX, clickY) {
         console.log("clientX: " + clickX + ", clientY: " + clickY);
         var center = this.getCenterXY(clickX, clickY);
         if (this.preventOverride(center.x, center.y)) {
             return false;
         }
-        console.log(center);
         var context = board.getContext("2d");
         context.beginPath();
         context.arc(center.x, center.y, radius, 0, 2 * Math.PI, false);
@@ -52,7 +53,7 @@ var chess = {
         context.closePath();
         context.fillStyle = "#FFF";
         context.fill();
-        //°×ÆåÏÂ¹ıÎª0£¬ºÚÆåÎª1
+        //ç™½æ£‹ä¸‹è¿‡ä¸º0ï¼Œé»‘æ£‹ä¸º1
         turn = 0;
         var step = {
             "x": center.x,
@@ -60,9 +61,13 @@ var chess = {
             "turn": turn
         };
         record.push(step);
+        if (this.isWin(center.x, center.y, turn)) {
+            isOver = true;
+            alert("The White Win!");
+        }
         console.log(record);
     },
-    //»æÖÆºÚÆå
+    //ç»˜åˆ¶é»‘æ£‹
     black: function (clickX, clickY) {
         console.log("clientX: " + clickX + ", clientY: " + clickY);
         var center = this.getCenterXY(clickX, clickY);
@@ -76,7 +81,7 @@ var chess = {
         context.closePath();
         context.fillStyle = "#000";
         context.fill();
-        //°×ÆåÏÂ¹ıÎª0£¬ºÚÆåÎª1
+        //ç™½æ£‹ä¸‹è¿‡ä¸º0ï¼Œé»‘æ£‹ä¸º1
         turn = 1;
         var step = {
             "x": center.x,
@@ -84,12 +89,16 @@ var chess = {
             "turn": turn
         };
         record.push(step);
+        if (this.isWin(center.x, center.y, turn)) {
+            isOver = true;
+            alert("The Black Win!");
+        }
         console.log(record);
     },
-    //»ñÈ¡Ô²ĞÄ×ø±ê
+    //è·å–åœ†å¿ƒåæ ‡
     getCenterXY: function (clickX, clickY) {
         var center = {};
-        //-25Ô­ÒòÊÇmarginÎª25
+        //-25åŸå› æ˜¯marginä¸º25
         var modX = (clickX - marginInit) % gridLength, modY = (clickY - marginInit) % gridLength;
         if (modX < 25) {
             center.x = clickX - modX;
@@ -103,7 +112,7 @@ var chess = {
         }
         return center;
     },
-    //±ÜÃâ±»ÒÑ»æÖÆµÄÆå×Ó±»¸²¸Ç
+    //é¿å…è¢«å·²ç»˜åˆ¶çš„æ£‹å­è¢«è¦†ç›–
     preventOverride: function (centerX, centerY) {
         var test = {
             "x": centerX,
@@ -112,45 +121,145 @@ var chess = {
         var length = record.length;
         for (var i = 0; i < length; i++) {
             if (test.x == record[i].x && test.y == record[i].y) {
-                console.log("Exsited");
+                alert("Can't do this!");
                 return true;
             }
         }
         return false;
     },
-    //ÅĞ¶ÏÊÇ·ñ»ñÊ¤
-    isWin: function (centerX, centerY,turn) {
-        this.isWinHorizon(centerX, centerY,turn);
-        this.isWinVertical(centerX, centerY,turn);
-        //ÅĞ¶Ï45¶È½Ç·½Ïò
-        //ÅĞ¶Ï135¶È½Ç·½Ïò
+    //åˆ¤æ–­æ˜¯å¦è·èƒœ
+    isWin: function (centerX, centerY, turn) {
+        return (this.isWinHorizon(centerX, centerY, turn) || this.isWinVertical(centerX, centerY, turn) ||
+        this.isLeftOblique(centerX, centerY, turn) || this.isRightOblique(centerX, centerY, turn));
     },
-    //ÅĞ¶Ï×óÓÒ·½Ïò
-    isWinHorizon: function (centerX, centerY,turn) {
-        var length=record.length;
-        var judge=[];
-        var judgeHorizon={
-            y:centerY,
-            turn:turn
+    //åˆ¤æ–­å·¦å³æ–¹å‘
+    isWinHorizon: function (centerX, centerY, turn) {
+        var length = record.length;
+        var judge = [];
+        var judgeHorizon = {
+            y: centerY,
+            turn: turn
         };
-        for(var i=0;i<length;i++){
-            if(judgeHorizon.y==record[i].y&&judgeHorizon.turn==record[i].turn){
-                judge.push(record[i]);
+        for (var i = 0; i < length; i++) {
+            if (judgeHorizon.y == record[i].y && judgeHorizon.turn == record[i].turn) {
+                //å¾—åˆ°æ¨ªåæ ‡ç‚¹çš„indexï¼Œæ ¼å¼ä¸º1,2ï¼Œ...
+                judge.push((record[i].x - marginInit) / gridLength);
             }
         }
-    },
-    //ÅĞ¶ÏÉÏÏÂ·½Ïò
-    isWinVertical: function (centerX, centerY, turn) {
-        var length=record.length;
-        var count;
-        for(var i=0;i<length;i++){
-
+        var count = judge.length;
+        judge.sort(function (a, b) {
+            return a - b;
+        });
+        if (count < 5) {
+            return false;
         }
+        for (var j = 0; j < count; j++) {
+            if ((judge[j + 4] - judge[j]) == 4) {
+                return true;
+            }
+        }
+        return false;
+    },
+    //åˆ¤æ–­ä¸Šä¸‹æ–¹å‘
+    isWinVertical: function (centerX, centerY, turn) {
+        var length = record.length;
+        var judge = [];
+        var judgeVertical = {
+            x: centerX,
+            turn: turn
+        };
+        for (var i = 0; i < length; i++) {
+            if (judgeVertical.x == record[i].y && judgeVertical.turn == record[i].turn) {
+                //å¾—åˆ°çºµåæ ‡ç‚¹çš„indexï¼Œæ ¼å¼ä¸º1,2ï¼Œ...
+                judge.push((record[i].y - marginInit) / gridLength);
+            }
+        }
+        var count = judge.length;
+        judge.sort(function (a, b) {
+            return a - b;
+        });
+        if (count < 5) {
+            return false;
+        }
+        for (var j = 0; j < count; j++) {
+            if ((judge[j + 4] - judge[j]) == 4) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    //åˆ¤æ–­45åº¦è§’æ–¹å‘
+    isLeftOblique: function (centerX, centerY, turn) {
+        var length = record.length;
+        var judge = [];
+        var judgeLeftOblique = {
+            x: centerX,
+            y: centerY,
+            turn: turn
+        };
+        for (var i = 0; i < length; i++) {
+            //45åº¦è§’æ–¹å‘æ¨ªçºµåæ ‡ç›¸åŠ ä¸ºå¸¸æ•°,x+y=c.
+            if ((judgeLeftOblique.x + judgeLeftOblique.y) == (record[i].x + record[i].y) &&
+                judgeLeftOblique.turn == record[i].turn) {
+                //å¾—åˆ°æ¨ªï¼ˆçºµä¹Ÿå¯ï¼‰åæ ‡ç‚¹çš„indexï¼Œæ ¼å¼ä¸º1,2ï¼Œ...
+                judge.push((record[i].x - marginInit) / gridLength);
+            }
+        }
+        var count = judge.length;
+        judge.sort(function (a, b) {
+            return a - b;
+        });
+        if (count < 5) {
+            return false;
+        }
+        for (var j = 0; j < count; j++) {
+            if ((judge[j + 4] - judge[j]) == 4) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    //åˆ¤æ–­135åº¦è§’æ–¹å‘
+    isRightOblique: function (centerX, centerY, turn) {
+        var length = record.length;
+        var judge = [];
+        var judgeRightOblique = {
+            x:centerX,
+            y: centerY,
+            turn: turn
+        };
+        for (var i = 0; i < length; i++) {
+            //135åº¦è§’æ–¹å‘çºµåæ ‡å‡æ¨ªåæ ‡ä¸ºå¸¸æ•°ï¼Œy-x=c.
+            if ((judgeRightOblique.y - judgeRightOblique.x) == (record[i].y - record[i].x) &&
+                judgeRightOblique.turn == record[i].turn) {
+                //å¾—åˆ°æ¨ª(çºµä¹Ÿå¯)åæ ‡ç‚¹çš„indexï¼Œæ ¼å¼ä¸º1,2ï¼Œ...
+                judge.push((record[i].x - marginInit) / gridLength);
+            }
+        }
+        var count = judge.length;
+        judge.sort(function (a, b) {
+            return a - b;
+        });
+        if (count < 5) {
+            return false;
+        }
+        for (var j = 0; j < count; j++) {
+            if ((judge[j + 4] - judge[j]) == 4) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 document.addEventListener("click", function (e) {
     if (e.clientX > boardWidth || e.clientY > boardHeight) {
-        //µã»÷Î»ÖÃ³¬¹ıÆåÅÌ±ß½ç
+        //ç‚¹å‡»ä½ç½®è¶…è¿‡æ£‹ç›˜è¾¹ç•Œ
+        return false;
+    }
+    if (isOver) {
+        alert("æ¸¸æˆå·²ç»“æŸï¼");
         return false;
     }
     if (turn == 1) {
