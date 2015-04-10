@@ -146,7 +146,7 @@ var chess = {
                 judge.push((record[i].x - marginInit) / gridLength);
             }
         }
-        return(this.isFive(judge));
+        return (this.isFive(judge));
     },
     //判断上下方向
     isWinVertical: function (centerX, centerY, turn) {
@@ -162,7 +162,7 @@ var chess = {
                 judge.push((record[i].y - marginInit) / gridLength);
             }
         }
-        return(this.isFive(judge));
+        return (this.isFive(judge));
     },
 
     //判断45度角方向
@@ -182,7 +182,7 @@ var chess = {
                 judge.push((record[i].x - marginInit) / gridLength);
             }
         }
-        return(this.isFive(judge));
+        return (this.isFive(judge));
     },
 
     //判断135度角方向
@@ -202,8 +202,9 @@ var chess = {
                 judge.push((record[i].x - marginInit) / gridLength);
             }
         }
-        return(this.isFive(judge));
+        return (this.isFive(judge));
     },
+    //判断是否五子相连，DRY原则
     isFive: function (judge) {
         var count = judge.length;
         if (count < 5) {
@@ -212,6 +213,7 @@ var chess = {
         judge.sort(function (a, b) {
             return a - b;
         });
+        //相减为4说明五子连续
         for (var j = 0; j < count; j++) {
             if ((judge[j + 4] - judge[j]) == 4) {
                 return true;
@@ -232,11 +234,7 @@ document.addEventListener("click", function (e) {
         alert("游戏已结束！");
         return false;
     }
-    if (turn == 1) {
-        chess.white(clickX, clickY);
-    } else {
-        chess.black(clickX, clickY);
-    }
+    (turn == 1) ? chess.white(clickX, clickY) : chess.black(clickX, clickY);
 }, false);
 
 chess.init();
