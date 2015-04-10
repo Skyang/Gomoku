@@ -142,23 +142,11 @@ var chess = {
         };
         for (var i = 0; i < length; i++) {
             if (judgeHorizon.y == record[i].y && judgeHorizon.turn == record[i].turn) {
-                //得到横坐标点的index，格式为1,2，...
+                //得到横坐标点的index，将坐标像素转为格式为1,2，...
                 judge.push((record[i].x - marginInit) / gridLength);
             }
         }
-        var count = judge.length;
-        judge.sort(function (a, b) {
-            return a - b;
-        });
-        if (count < 5) {
-            return false;
-        }
-        for (var j = 0; j < count; j++) {
-            if ((judge[j + 4] - judge[j]) == 4) {
-                return true;
-            }
-        }
-        return false;
+        return(this.isFive(judge));
     },
     //判断上下方向
     isWinVertical: function (centerX, centerY, turn) {
@@ -170,23 +158,11 @@ var chess = {
         };
         for (var i = 0; i < length; i++) {
             if (judgeVertical.x == record[i].x && judgeVertical.turn == record[i].turn) {
-                //得到纵坐标点的index，格式为1,2，...
+                //得到纵坐标点的index，将坐标像素转为格式为1,2，...
                 judge.push((record[i].y - marginInit) / gridLength);
             }
         }
-        var count = judge.length;
-        judge.sort(function (a, b) {
-            return a - b;
-        });
-        if (count < 5) {
-            return false;
-        }
-        for (var j = 0; j < count; j++) {
-            if ((judge[j + 4] - judge[j]) == 4) {
-                return true;
-            }
-        }
-        return false;
+        return(this.isFive(judge));
     },
 
     //判断45度角方向
@@ -199,26 +175,14 @@ var chess = {
             turn: turn
         };
         for (var i = 0; i < length; i++) {
-            //45度角方向横纵坐标相加为常数,x+y=c.
+            //45度角方向横纵坐标相加为常数,x+y=c(c为常数).
             if ((judgeLeftOblique.x + judgeLeftOblique.y) == (record[i].x + record[i].y) &&
                 judgeLeftOblique.turn == record[i].turn) {
-                //得到横（纵也可）坐标点的index，格式为1,2，...
+                //得到横（纵也可）坐标点的index，将坐标像素转为格式为1,2，...
                 judge.push((record[i].x - marginInit) / gridLength);
             }
         }
-        var count = judge.length;
-        judge.sort(function (a, b) {
-            return a - b;
-        });
-        if (count < 5) {
-            return false;
-        }
-        for (var j = 0; j < count; j++) {
-            if ((judge[j + 4] - judge[j]) == 4) {
-                return true;
-            }
-        }
-        return false;
+        return(this.isFive(judge));
     },
 
     //判断135度角方向
@@ -226,25 +190,28 @@ var chess = {
         var length = record.length;
         var judge = [];
         var judgeRightOblique = {
-            x:centerX,
+            x: centerX,
             y: centerY,
             turn: turn
         };
         for (var i = 0; i < length; i++) {
-            //135度角方向纵坐标减横坐标为常数，y-x=c.
+            //135度角方向纵坐标减横坐标为常数，y-x=c(c为常数).
             if ((judgeRightOblique.y - judgeRightOblique.x) == (record[i].y - record[i].x) &&
                 judgeRightOblique.turn == record[i].turn) {
-                //得到横(纵也可)坐标点的index，格式为1,2，...
+                //得到横(纵也可)坐标点的index，将坐标像素转为格式为1,2，...
                 judge.push((record[i].x - marginInit) / gridLength);
             }
         }
+        return(this.isFive(judge));
+    },
+    isFive: function (judge) {
         var count = judge.length;
-        judge.sort(function (a, b) {
-            return a - b;
-        });
         if (count < 5) {
             return false;
         }
+        judge.sort(function (a, b) {
+            return a - b;
+        });
         for (var j = 0; j < count; j++) {
             if ((judge[j + 4] - judge[j]) == 4) {
                 return true;
@@ -254,7 +221,10 @@ var chess = {
     }
 };
 document.addEventListener("click", function (e) {
-    if (e.clientX > boardWidth || e.clientY > boardHeight) {
+    //避免滚动轴变化引起定位不准
+    var clickX = e.clientX + document.body.scrollLeft;
+    var clickY = e.clientY + document.body.scrollTop;
+    if (clickX > boardWidth || clickY > boardHeight) {
         //点击位置超过棋盘边界
         return false;
     }
@@ -263,9 +233,9 @@ document.addEventListener("click", function (e) {
         return false;
     }
     if (turn == 1) {
-        chess.white(e.clientX, e.clientY);
+        chess.white(clickX, clickY);
     } else {
-        chess.black(e.clientX, e.clientY);
+        chess.black(clickX, clickY);
     }
 }, false);
 
