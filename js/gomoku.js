@@ -100,16 +100,8 @@ var chess = {
         var center = {};
         //-25原因是margin为25
         var modX = (clickX - marginInit) % gridLength, modY = (clickY - marginInit) % gridLength;
-        if (modX < 25) {
-            center.x = clickX - modX;
-        } else {
-            center.x = clickX - modX + 50;
-        }
-        if (modY < 25) {
-            center.y = clickY - modY;
-        } else {
-            center.y = clickY - modY + 50;
-        }
+        center.x = modX<25?(clickX - modX):(clickX - modX+50);
+        center.y = modY<25?(clickY - modY):(clickY - modY+50);
         return center;
     },
     //避免被已绘制的棋子被覆盖
